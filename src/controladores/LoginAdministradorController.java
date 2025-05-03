@@ -38,7 +38,7 @@ public class LoginAdministradorController {
             ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
-                // Login correcto, redirigir a la vista de Administrador
+                // Login correcto
                 System.out.println("Login exitoso para administrador.");
                 abrirVentanaAdministrador();
             } else {
@@ -65,16 +65,16 @@ public class LoginAdministradorController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/AdminDashboard.fxml"));
             VBox vbox = loader.load();
 
-            // Crear y mostrar la nueva ventana
+   
             Scene scene = new Scene(vbox);
             Stage stage = new Stage();
             stage.setTitle("Panel de Administrador");
             stage.setScene(scene);
             stage.show();
 
-            // Cerrar la ventana de login
+          
             Stage loginStage = (Stage) correoField.getScene().getWindow();
-            loginStage.close();  // Cierra la ventana de login
+            loginStage.close();  
 
         } catch (IOException e) {
             e.printStackTrace();

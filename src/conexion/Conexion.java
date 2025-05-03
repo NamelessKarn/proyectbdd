@@ -6,13 +6,13 @@ import java.sql.SQLException;
 
 public class Conexion {
 
-    private static final String URL = "jdbc:mysql://localhost:3306/laboratorio_circuitos"; // Cambia esto según tu configuración
-    private static final String USER = "root";  // Cambia según tu usuario
-    private static final String PASSWORD = "danyxD31";  // Cambia según tu contraseña
+    private static final String URL = "jdbc:mysql://localhost:3306/laboratorio_circuitos"; 
+    private static final String USER = "root"; 
+    private static final String PASSWORD = "danyxD31"; 
 
     public static Connection getConnection() throws SQLException {
         try {
-            // Cargar el driver de MySQL (asegurarte de tener el conector JDBC de MySQL en tu proyecto)
+            // Cargar el driver de MySQL 
             Class.forName("com.mysql.cj.jdbc.Driver");
             return DriverManager.getConnection(URL, USER, PASSWORD);
         } catch (ClassNotFoundException | SQLException e) {

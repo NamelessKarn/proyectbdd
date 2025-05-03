@@ -7,7 +7,7 @@ import java.io.IOException;
 
 public class MainController {
 
-    // Método para abrir la ventana de login del administrador
+
     public void abrirLoginAdministrador() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/LoginAdministrador.fxml"));
@@ -21,7 +21,7 @@ public class MainController {
         }
     }
 
-    // Método para abrir la ventana de login del alumno
+
     public void abrirLoginAlumno() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/LoginAlumno.fxml"));

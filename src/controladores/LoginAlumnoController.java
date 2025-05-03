@@ -27,7 +27,7 @@ public class LoginAlumnoController {
     private PasswordField contraseñaField;
 
     @FXML
-    private Button btnRegistrar;  // Botón para ir a registrar
+    private Button btnRegistrar;  
 
     public void loginAlumno() {
         String correo = correoField.getText();
@@ -42,15 +42,14 @@ public class LoginAlumnoController {
             ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
-                // Login correcto, mostrar datos del alumno
+
                 int idAlumno = rs.getInt("id_alumno");
                 String nombre = rs.getString("nombre");
                 String carrera = rs.getString("carrera");
 
-                // Redirigir a la vista AlumnoDashboard.fxml
                 abrirVentanaAlumno(idAlumno, nombre, carrera);
             } else {
-                // Si no se encuentra al alumno
+
                 mostrarAlerta("Error", "Correo o contraseña incorrectos.", AlertType.ERROR);
             }
         } catch (SQLException e) {
@@ -69,13 +68,12 @@ public class LoginAlumnoController {
 
     private void abrirVentanaAlumno(int idAlumno, String nombre, String carrera) {
         try {
-            // Asegúrate de que la ruta sea correcta
+
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/AlumnoDashboard.fxml"));
             VBox vbox = loader.load();
             AlumnoDashboardController controller = loader.getController();
             controller.mostrarDatosAlumno(idAlumno, nombre, carrera);
 
-            // Crear y mostrar la nueva ventana
             Scene scene = new Scene(vbox);
             Stage stage = new Stage();
             stage.setTitle("Panel de Alumno");
@@ -87,7 +85,6 @@ public class LoginAlumnoController {
         }
     }
 
-    // Nuevo método para redirigir a la ventana de registro
     public void irARegistrarAlumno() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/RegistrarAlumno.fxml"));
@@ -99,7 +96,7 @@ public class LoginAlumnoController {
             stage.setScene(scene);
             stage.show();
             
-            // Cerrar ventana actual (Login)
+
             Stage currentStage = (Stage) btnRegistrar.getScene().getWindow();
             currentStage.close();
         } catch (IOException e) {
