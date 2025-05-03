@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox prefHeight="677.0" prefWidth="436.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/23.0.1" fx:controller="controladores.AdminDashboardController">
+    <!-- Sección de Alumnos -->
+    <Label text="Alumnos" />
+    <ListView fx:id="alumnosList" prefHeight="200" />
+
+    <!-- Sección de Materiales -->
+    <Label text="Materiales" />
+    <ListView fx:id="materialesList" prefHeight="200" />
+
+    <!-- Sección de Deudas -->
+    <Label text="Deudas" />
+    <ListView fx:id="deudasList" prefHeight="200" />
+
+    <!-- Sección de Préstamos -->
+    <Label text="Préstamos" />
+    <ListView fx:id="prestamosList" prefHeight="200" />
+
+    <!-- Sección de Devoluciones -->
+    <Label text="Devoluciones" />
+    <ListView fx:id="devolucionesList" prefHeight="200" />
+</VBox>
