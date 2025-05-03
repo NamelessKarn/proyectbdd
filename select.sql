@@ -1,6 +1,6 @@
--- ================================================
+
 -- CONSULTAS SQL PARA EL SISTEMA DE LABORATORIO
--- ================================================
+
 
 -- 1. Consulta de materiales disponibles con su cantidad
 -- Muestra el nombre de cada material y la cantidad disponible en inventario
