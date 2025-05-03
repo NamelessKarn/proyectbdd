@@ -4,25 +4,25 @@
 <?import javafx.scene.layout.*?>
 
 <VBox alignment="CENTER" prefHeight="693.0" prefWidth="447.0" spacing="10" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controladores.AlumnoDashboardController">
-    <!-- Información del Alumno -->
+   
     <Label fx:id="nombreLabel" />
     <Label fx:id="carreraLabel" />
 
-    <!-- Lista de Materiales Prestados -->
+
     <Label text="Materiales Prestados:" />
     <ListView fx:id="materialesPrestadosList" prefHeight="83.0" prefWidth="447.0" />
 
-    <!-- Lista de Deudas -->
+
     <Label text="Deudas:" />
     <ListView fx:id="deudasList" prefHeight="94.0" prefWidth="447.0" />
 
-    <!-- Lista de Devoluciones -->
+
     <Label text="Devoluciones:" />
     <ListView fx:id="devolucionesList" prefHeight="265.0" prefWidth="447.0" />
 
     <Separator />
 
-    <!-- Sección para pedir material -->
+
     <Label text="Pedir Material" />
     <HBox spacing="5">
         <ComboBox fx:id="comboMaterialesDisponibles" prefWidth="150" />
@@ -30,7 +30,6 @@
         <Button onAction="#pedirMaterial" text="Pedir" />
     </HBox>
 
-    <!-- Sección para devolver material -->
     <Label text="Devolver Material" />
     <HBox spacing="5">
         <ComboBox fx:id="comboMaterialesPrestados" prefWidth="150" />
