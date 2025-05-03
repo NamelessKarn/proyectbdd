@@ -1,12 +1,11 @@
--- ===============================
+
 -- BASE DE DATOS: laboratorio_circuitos
 -- Vistas, Procedimientos, Funciones y Triggers
--- ===============================
 USE laboratorio_circuitos;
 
--- ===============================
+
 -- VISTA 1: Vista de materiales disponibles
--- ===============================
+
 CREATE OR REPLACE VIEW vista_materiales_disponibles AS
 SELECT 
     id_material,
@@ -16,9 +15,9 @@ SELECT
 FROM Material
 WHERE cantidad_disponible > 0;
 
--- ===============================
+
 -- VISTA 2: Vista de préstamos activos con nombre del alumno
--- ===============================
+
 CREATE OR REPLACE VIEW vista_prestamos_activos AS
 SELECT 
     P.id_prestamo,
@@ -34,9 +33,9 @@ WHERE P.id_prestamo IN (
     )
 );
 
--- ===============================
 -- FUNCION: Obtener total prestado por alumno
--- ===============================
+
+
 DELIMITER //
 
 CREATE FUNCTION total_material_prestado(id INT)
@@ -55,9 +54,9 @@ END;
 
 DELIMITER ;
 
--- ===============================
+
 -- PROCEDIMIENTO: Generar deuda por materiales no devueltos
--- ===============================
+
 DELIMITER //
 
 CREATE PROCEDURE generarDeuda()
@@ -105,9 +104,9 @@ END;
 
 DELIMITER ;
 
--- ===============================
+
 -- TRIGGER: Actualizar cantidad_disponible al devolver material
--- ===============================
+
 DELIMITER //
 
 CREATE TRIGGER actualizarInventarioDevolucion
@@ -127,9 +126,8 @@ END;
 
 DELIMITER ;
 
--- ===============================
 -- TRIGGER: Prevenir préstamo mayor al stock disponible
--- ===============================
+
 DELIMITER //
 
 CREATE TRIGGER validarDisponibilidadAntesDePrestar
