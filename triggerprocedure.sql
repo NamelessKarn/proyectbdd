@@ -147,3 +147,9 @@ END;
 //
 
 DELIMITER ;
+
+
+SHOW TRIGGERS;
+SHOW PROCEDURE STATUS WHERE Db = 'laboratorio_circuitos';
+SHOW FUNCTION STATUS WHERE Db = 'laboratorio_circuitos';
+
