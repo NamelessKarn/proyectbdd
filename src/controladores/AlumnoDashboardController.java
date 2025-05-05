@@ -33,75 +33,96 @@ public class AlumnoDashboardController {
         cargarDevoluciones(idAlumno);
     }
 
+    private ResultSet ejecutarConsulta(String sql, Object... params) throws SQLException {
+        Connection conn = Conexion.getConnection();
+        PreparedStatement stmt = conn.prepareStatement(sql);
+        for (int i = 0; i < params.length; i++) {
+            stmt.setObject(i + 1, params[i]);
+        }
+        return stmt.executeQuery();
+    }
+
     private void cargarMaterialesDisponibles() {
         comboMaterialesDisponibles.getItems().clear();
-        try (Connection conn = Conexion.getConnection()) {
+        try {
             String sql = "SELECT nombre FROM Material";
-            ResultSet rs = conn.prepareStatement(sql).executeQuery();
-            while (rs.next()) comboMaterialesDisponibles.getItems().add(rs.getString("nombre"));
-        } catch (SQLException e) { e.printStackTrace(); }
+            ResultSet rs = ejecutarConsulta(sql);
+            while (rs.next()) {
+                comboMaterialesDisponibles.getItems().add(rs.getString("nombre"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     private void cargarMaterialesPrestados(int idAlumno) {
         comboMaterialesPrestados.getItems().clear();
         materialesPrestadosList.getItems().clear();
-        try (Connection conn = Conexion.getConnection()) {
+        try {
             String sql = "SELECT m.nombre, dp.cantidad_prestada, p.fecha_prestamo FROM Material m " +
-                    "JOIN DetallePrestamo dp ON m.id_material = dp.id_material " +
-                    "JOIN Prestamo p ON dp.id_prestamo = p.id_prestamo WHERE p.id_alumno = ?";
-            PreparedStatement stmt = conn.prepareStatement(sql);
-            stmt.setInt(1, idAlumno);
-            ResultSet rs = stmt.executeQuery();
+                         "JOIN DetallePrestamo dp ON m.id_material = dp.id_material " +
+                         "JOIN Prestamo p ON dp.id_prestamo = p.id_prestamo WHERE p.id_alumno = ?";
+            ResultSet rs = ejecutarConsulta(sql, idAlumno);
             while (rs.next()) {
                 String nombre = rs.getString("nombre");
                 String item = nombre + " - Cantidad: " + rs.getInt("cantidad_prestada") +
-                        " - Fecha: " + rs.getDate("fecha_prestamo");
+                              " - Fecha: " + rs.getDate("fecha_prestamo");
                 materialesPrestadosList.getItems().add(item);
                 if (!comboMaterialesPrestados.getItems().contains(nombre)) {
                     comboMaterialesPrestados.getItems().add(nombre);
                 }
             }
-        } catch (SQLException e) { e.printStackTrace(); }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     private void cargarDeudas(int idAlumno) {
         deudasList.getItems().clear();
-        try (Connection conn = Conexion.getConnection()) {
+        try {
             String sql = "SELECT m.nombre, d.cantidad_adeudada FROM Deuda d " +
                          "JOIN Material m ON d.id_material = m.id_material WHERE d.id_alumno = ?";
-            PreparedStatement stmt = conn.prepareStatement(sql);
-            stmt.setInt(1, idAlumno);
-            ResultSet rs = stmt.executeQuery();
+            ResultSet rs = ejecutarConsulta(sql, idAlumno);
             while (rs.next()) {
                 String deuda = rs.getString("nombre") + " - Deuda: " + rs.getInt("cantidad_adeudada");
                 deudasList.getItems().add(deuda);
             }
-        } catch (SQLException e) { e.printStackTrace(); }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     private void cargarDevoluciones(int idAlumno) {
         devolucionesList.getItems().clear();
-        try (Connection conn = Conexion.getConnection()) {
+        try {
             String sql = "SELECT m.nombre, dp.cantidad_prestada, d.cantidad_devuelta, d.fecha_devolucion FROM Devolucion d " +
-                    "JOIN DetallePrestamo dp ON d.id_detalle = dp.id_detalle " +
-                    "JOIN Material m ON dp.id_material = m.id_material " +
-                    "JOIN Prestamo p ON dp.id_prestamo = p.id_prestamo WHERE p.id_alumno = ?";
-            PreparedStatement stmt = conn.prepareStatement(sql);
-            stmt.setInt(1, idAlumno);
-            ResultSet rs = stmt.executeQuery();
+                         "JOIN DetallePrestamo dp ON d.id_detalle = dp.id_detalle " +
+                         "JOIN Material m ON dp.id_material = m.id_material " +
+                         "JOIN Prestamo p ON dp.id_prestamo = p.id_prestamo WHERE p.id_alumno = ?";
+            ResultSet rs = ejecutarConsulta(sql, idAlumno);
             while (rs.next()) {
                 String devolucion = rs.getString("nombre") + " - Prestado: " + rs.getInt("cantidad_prestada") +
-                        " - Devuelto: " + rs.getInt("cantidad_devuelta") +
-                        " - Fecha: " + rs.getDate("fecha_devolucion");
+                                     " - Devuelto: " + rs.getInt("cantidad_devuelta") +
+                                     " - Fecha: " + rs.getDate("fecha_devolucion");
                 devolucionesList.getItems().add(devolucion);
             }
-        } catch (SQLException e) { e.printStackTrace(); }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void mostrarAlerta(String mensaje, Alert.AlertType tipo) {
+        Alert alert = new Alert(tipo);
+        alert.setTitle("Información");
+        alert.setHeaderText(null);
+        alert.setContentText(mensaje);
+        alert.showAndWait();
     }
 
     @FXML private void pedirMaterial() {
         String nombreMaterial = comboMaterialesDisponibles.getValue();
         if (nombreMaterial == null || cantidadPedirField.getText().isEmpty()) {
-            mostrarAlerta("Selecciona un material y escribe una cantidad.");
+            mostrarAlerta("Selecciona un material y escribe una cantidad.", Alert.AlertType.WARNING);
             return;
         }
 
@@ -109,11 +130,13 @@ public class AlumnoDashboardController {
         try {
             cantidad = Integer.parseInt(cantidadPedirField.getText());
         } catch (NumberFormatException e) {
-            mostrarAlerta("La cantidad debe ser un número válido.");
+            mostrarAlerta("La cantidad debe ser un número válido.", Alert.AlertType.WARNING);
             return;
         }
 
         try (Connection conn = Conexion.getConnection()) {
+            conn.setAutoCommit(false); 
+
             String sqlMat = "SELECT id_material, cantidad_disponible FROM Material WHERE nombre = ?";
             PreparedStatement stmtMat = conn.prepareStatement(sqlMat);
             stmtMat.setString(1, nombreMaterial);
@@ -124,11 +147,10 @@ public class AlumnoDashboardController {
                 int disponibles = rs.getInt("cantidad_disponible");
 
                 if (cantidad > disponibles) {
-                    mostrarAlerta("No hay suficiente material disponible.");
+                    mostrarAlerta("No hay suficiente material disponible.", Alert.AlertType.WARNING);
                     return;
                 }
 
-                // Registrar el préstamo
                 String insertPrestamo = "INSERT INTO Prestamo (id_alumno, fecha_prestamo, fecha_limite) VALUES (?, ?, ?)";
                 PreparedStatement stmtPrestamo = conn.prepareStatement(insertPrestamo, Statement.RETURN_GENERATED_KEYS);
                 stmtPrestamo.setInt(1, idAlumno);
@@ -139,7 +161,6 @@ public class AlumnoDashboardController {
                 rsKey.next();
                 int idPrestamo = rsKey.getInt(1);
 
-                // Registrar detalle del préstamo
                 String insertDetalle = "INSERT INTO DetallePrestamo (id_prestamo, id_material, cantidad_prestada) VALUES (?, ?, ?)";
                 PreparedStatement stmtDetalle = conn.prepareStatement(insertDetalle);
                 stmtDetalle.setInt(1, idPrestamo);
@@ -147,14 +168,12 @@ public class AlumnoDashboardController {
                 stmtDetalle.setInt(3, cantidad);
                 stmtDetalle.executeUpdate();
 
-                // Actualizar la cantidad disponible de material
                 String updateMat = "UPDATE Material SET cantidad_disponible = cantidad_disponible - ? WHERE id_material = ?";
                 PreparedStatement stmtUpdate = conn.prepareStatement(updateMat);
                 stmtUpdate.setInt(1, cantidad);
                 stmtUpdate.setInt(2, idMaterial);
                 stmtUpdate.executeUpdate();
 
-                // Crear o actualizar deuda automáticamente
                 String sqlDeuda = "SELECT cantidad_adeudada FROM Deuda WHERE id_alumno = ? AND id_material = ?";
                 PreparedStatement stmtDeuda = conn.prepareStatement(sqlDeuda);
                 stmtDeuda.setInt(1, idAlumno);
@@ -162,16 +181,14 @@ public class AlumnoDashboardController {
                 ResultSet rsDeuda = stmtDeuda.executeQuery();
 
                 if (!rsDeuda.next()) {
-                    // Si no existe deuda, insertamos la deuda con la cantidad pedida y la fecha actual
                     String insertDeuda = "INSERT INTO Deuda (id_alumno, id_material, cantidad_adeudada, fecha_generacion) VALUES (?, ?, ?, ?)";
                     PreparedStatement stmtInsertDeuda = conn.prepareStatement(insertDeuda);
                     stmtInsertDeuda.setInt(1, idAlumno);
                     stmtInsertDeuda.setInt(2, idMaterial);
                     stmtInsertDeuda.setInt(3, cantidad);
-                    stmtInsertDeuda.setDate(4, Date.valueOf(LocalDate.now())); // Fecha actual
+                    stmtInsertDeuda.setDate(4, Date.valueOf(LocalDate.now()));
                     stmtInsertDeuda.executeUpdate();
                 } else {
-                    // Si ya existe deuda, actualizamos sumando la cantidad pedida
                     String actualizarDeuda = "UPDATE Deuda SET cantidad_adeudada = cantidad_adeudada + ? WHERE id_alumno = ? AND id_material = ?";
                     PreparedStatement stmtActualizarDeuda = conn.prepareStatement(actualizarDeuda);
                     stmtActualizarDeuda.setInt(1, cantidad);
@@ -180,20 +197,22 @@ public class AlumnoDashboardController {
                     stmtActualizarDeuda.executeUpdate();
                 }
 
-                // Actualizar las listas de la vista
+                conn.commit(); 
+
                 cargarMaterialesPrestados(idAlumno);
                 cargarMaterialesDisponibles();
                 cargarDeudas(idAlumno);
-                mostrarAlerta("Préstamo registrado correctamente.");
+                mostrarAlerta("Préstamo registrado correctamente.", Alert.AlertType.INFORMATION);
             }
-        } catch (SQLException e) { e.printStackTrace(); }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
-
 
     @FXML private void devolverMaterial() {
         String nombreMaterial = comboMaterialesPrestados.getValue();
         if (nombreMaterial == null || cantidadDevolverField.getText().isEmpty()) {
-            mostrarAlerta("Selecciona un material prestado y escribe una cantidad.");
+            mostrarAlerta("Selecciona un material prestado y escribe una cantidad.", Alert.AlertType.WARNING);
             return;
         }
 
@@ -201,17 +220,19 @@ public class AlumnoDashboardController {
         try {
             cantidadDevuelta = Integer.parseInt(cantidadDevolverField.getText());
         } catch (NumberFormatException e) {
-            mostrarAlerta("La cantidad debe ser un número válido.");
+            mostrarAlerta("La cantidad debe ser un número válido.", Alert.AlertType.WARNING);
             return;
         }
 
         try (Connection conn = Conexion.getConnection()) {
+            conn.setAutoCommit(false); // Iniciar transacción
+
             String sqlDetalle = "SELECT dp.id_detalle, m.id_material, IFNULL(d.cantidad_adeudada, dp.cantidad_prestada) AS cantidad_adeudada " +
-                    "FROM DetallePrestamo dp " +
-                    "JOIN Prestamo p ON dp.id_prestamo = p.id_prestamo " +
-                    "JOIN Material m ON dp.id_material = m.id_material " +
-                    "LEFT JOIN Deuda d ON d.id_alumno = p.id_alumno AND d.id_material = m.id_material " +
-                    "WHERE p.id_alumno = ? AND m.nombre = ? LIMIT 1";
+                                "FROM DetallePrestamo dp " +
+                                "JOIN Prestamo p ON dp.id_prestamo = p.id_prestamo " +
+                                "JOIN Material m ON dp.id_material = m.id_material " +
+                                "LEFT JOIN Deuda d ON d.id_alumno = p.id_alumno AND d.id_material = m.id_material " +
+                                "WHERE p.id_alumno = ? AND m.nombre = ? LIMIT 1";
             PreparedStatement stmt = conn.prepareStatement(sqlDetalle);
             stmt.setInt(1, idAlumno);
             stmt.setString(2, nombreMaterial);
@@ -223,7 +244,7 @@ public class AlumnoDashboardController {
                 int adeudado = rs.getInt("cantidad_adeudada");
 
                 if (adeudado == 0) {
-                    mostrarAlerta("No se debe nada de este material.");
+                    mostrarAlerta("No se debe nada de este material.", Alert.AlertType.WARNING);
                     return;
                 }
 
@@ -240,12 +261,12 @@ public class AlumnoDashboardController {
                 stmtUpdateMat.setInt(2, idMaterial);
                 stmtUpdateMat.executeUpdate();
 
-                // Actualizamos la deuda si corresponde
                 String sqlDeuda = "SELECT cantidad_adeudada FROM Deuda WHERE id_alumno = ? AND id_material = ?";
                 PreparedStatement stmtDeuda = conn.prepareStatement(sqlDeuda);
                 stmtDeuda.setInt(1, idAlumno);
                 stmtDeuda.setInt(2, idMaterial);
                 ResultSet rsDeuda = stmtDeuda.executeQuery();
+
                 if (rsDeuda.next()) {
                     int deuda = rsDeuda.getInt("cantidad_adeudada");
                     if (deuda > cantidadDevuelta) {
@@ -264,21 +285,15 @@ public class AlumnoDashboardController {
                     }
                 }
 
+                conn.commit(); 
+
                 cargarMaterialesPrestados(idAlumno);
                 cargarDeudas(idAlumno);
                 cargarDevoluciones(idAlumno);
-                mostrarAlerta("Devolución registrada correctamente.");
+                mostrarAlerta("Devolución registrada correctamente.", Alert.AlertType.INFORMATION);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-    }
-
-    private void mostrarAlerta(String mensaje) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Información");
-        alert.setHeaderText(null);
-        alert.setContentText(mensaje);
-        alert.showAndWait();
     }
 }

@@ -26,7 +26,6 @@
       </children>
    </Pane>
 
-   <!-- Botones para ir a Login -->
    <Button maxWidth="200" onAction="#abrirLoginAdministrador" text="Login Administrador" />
    <Button maxWidth="200" onAction="#abrirLoginAlumno" text="Login Alumno" />
 </VBox>
